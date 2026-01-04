@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Shatkona",
+    "slug": "shatkona-git",
+    "version": "1.0.0",
+    "newArchEnabled": true,
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "shatkona-app",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000124"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.shatkona",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Shatkona uses the camera for S-Index face scanning and Heart Rate detection.",
+        "NSMicrophoneUsageDescription": "This app does not record audio."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundColor": "#000124"
+      },
+      "permissions": [
+        "CAMERA",
+        "VIBRATE"
+      ],
+      "package": "com.yourname.shatkona"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Shatkona to use the camera for wellness scanning.",
+          "enableTorch": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": false
+    }
+  }
+}
