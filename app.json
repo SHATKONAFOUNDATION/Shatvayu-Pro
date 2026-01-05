@@ -1,43 +1,43 @@
 {
   "expo": {
-    "name": "Shatkona",
-    "slug": "shatkona-git",
+    "name": "FasciaMax",
+    "slug": "fasciamax-portal",
     "version": "1.0.0",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "shatkona-app",
+    "scheme": "fasciamax-app",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000124"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.shatkona",
+      "bundleIdentifier": "com.fasciamax.portal",
       "infoPlist": {
-        "NSCameraUsageDescription": "Shatkona uses the camera for S-Index face scanning and Heart Rate detection.",
+        "NSCameraUsageDescription": "FasciaMax uses the camera for S-Index face scanning and Heart Rate detection.",
         "NSMicrophoneUsageDescription": "This app does not record audio."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundColor": "#000124"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "CAMERA",
         "VIBRATE"
       ],
-      "package": "com.yourname.shatkona"
+      "package": "com.fasciamax.portal"
     },
     "plugins": [
       "expo-router",
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Shatkona to use the camera for wellness scanning.",
+          "cameraPermission": "Allow FasciaMax to use the camera for wellness scanning.",
           "enableTorch": true
         }
       ]

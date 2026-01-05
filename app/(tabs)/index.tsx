@@ -70,7 +70,7 @@ export default function App() {
     const sIndex = calculatedHRV > 60 ? 'Low' : 'High';
     const timeNow = new Date().toLocaleTimeString();
     const reportData = { hrv: calculatedHRV, stress: sIndex, timestamp: timeNow };
-    
+    console.log("📊 NEW PATIENT DATA:", reportData);
     setShowReport(reportData);
     setIsScanning(false); 
   };
