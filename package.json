@@ -19,6 +19,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "expo": "~54.0.30",
+    "expo-av": "~16.0.8",
     "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.12",
     "expo-face-detector": "^13.0.2",
@@ -51,6 +52,7 @@
     "react-webcam": "^7.2.0"
   },
   "devDependencies": {
+    "@react-native-community/cli": "^20.0.2",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
