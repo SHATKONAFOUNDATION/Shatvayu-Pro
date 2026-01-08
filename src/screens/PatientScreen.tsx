@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ResizeMode, Video } from 'expo-av';
 import { CameraView } from 'expo-camera';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
   Animated,
@@ -21,183 +22,390 @@ import { styles } from '../constants/styles';
 const { width } = Dimensions.get('window');
 
 export default function PatientScreen({ 
-  isScanning, reading, scanMode, cameraRef, translateY, 
-  blinkAnim, rotation, startScan, showReport, setShowReport, 
-  setReading, setEcoMenuVisible, ecoMenuVisible 
+  isScanning, 
+  reading, 
+  scanMode, 
+  cameraRef, 
+  translateY, 
+  blinkAnim, 
+  startScan, 
+  setEcoMenuVisible, 
+  ecoMenuVisible 
 }: any) {
 
   const [showAd, setShowAd] = useState(false);
   const [activePillar, setActivePillar] = useState('');
+  const [userProgress] = useState(9); // Mastery level for demo
+
+  // --- NEW ROADMAP STATES ---
+  const [showRoadmap, setShowRoadmap] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(3);
   
-  // DEMO MODE: Change this to 9 to see the Certificate appear instantly
-  const [userProgress] = useState(9); 
+  // --- NEW CLINICAL REPORT STATE --- (Placed here to avoid hook errors)
+  const [showClinicalReport, setShowClinicalReport] = useState(false);
+
+  // --- CLINICAL ANALYSIS LOGIC --- (Refactored to avoid early returns)
+  const getPhaseAnalysis = () => {
+    let analysis = {
+      status: "Optimal Tensegrity",
+      advice: "Autonomous Maintenance & Bio-Hacking protocols active."
+    };
+
+    if (userProgress <= 3) {
+      analysis = {
+        status: "High Tissue Adhesion",
+        advice: "Prioritize Decompression & Hydration of the ground substance."
+      };
+    } else if (userProgress <= 6) {
+      analysis = {
+        status: "Kinetic Misalignment",
+        advice: "Focus on Spiral Line alignment and kinetic chain integration."
+      };
+    }
+    return analysis;
+  };
+
+  const roadmapContent: any = {
+    3: {
+      title: "PHASE 1: FOUNDATION",
+      focus: "Hydration & Decompression",
+      details: "• Manual Fascial Release\n• Tissue Rehydration Protocols\n• Baseline Biometric Mapping\n• Mind-Fascia Connection"
+    },
+    6: {
+      title: "PHASE 2: VITALITY",
+      focus: "Structural Alignment",
+      details: "• Kinetic Chain Optimization\n• Tensegrity System Training\n• HRV Synchronicity\n• Pain Pattern Erasure"
+    },
+    9: {
+      title: "PHASE 3: MASTERY",
+      focus: "Autonomous Bio-Hacking",
+      details: "• Geoglyph Energy Mapping\n• Executive Fascia Reset\n• Autonomous Maintenance\n• Protocol Graduation"
+    }
+  };
 
   const handlePillarPress = (name: string) => {
     setActivePillar(name);
     setShowAd(true);
   };
 
+  const handleProgressPress = (month: number) => {
+    setSelectedMonth(month);
+    setShowRoadmap(true);
+  };
+const [isFinished, setIsFinished] = useState(false);
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Image source={require('../../assets/images/logo.png')} style={styles.logoSmall} />
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity style={styles.startScanBtnTop} onPress={() => startScan('face')}>
-            <Text style={styles.scanBtnText}>FACE SCAN</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.startScanBtnTop, { backgroundColor: '#FFD700' }]} onPress={() => startScan('finger')}>
-            <Text style={styles.scanBtnText}>FINGER SCAN</Text>
-          </TouchableOpacity>
-        </View>
+    <View style={{ flex: 1 }}>
+      {/* BACKGROUND LAYER */}
+      <View style={StyleSheet.absoluteFill}>
+        <LinearGradient
+          colors={['#000B29', '#07011b', '#000333']}
+          style={{ flex: 1 }}
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.percentageText}>{reading}%</Text>
-
-        {/* 3-6-9 ACHIEVEMENT MODULE */}
-        {!isScanning && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 25 }}>
-            <Text style={[styles.statusText, { textAlign: 'left', paddingHorizontal: 0, marginBottom: 10 }]}>
-              SHATKONA PROGRESSION
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {[3, 6, 9].map((mod) => (
-                <View key={mod} style={[styles.modCard, { borderColor: userProgress >= mod ? '#FFD700' : '#333' }]}>
-                  <Text style={[styles.modNumber, { color: userProgress >= mod ? '#FFD700' : '#444' }]}>{mod}</Text>
-                  <Text style={styles.modLabel}>MONTHS</Text>
-                  {userProgress >= mod && <MaterialCommunityIcons name="check-circle" size={12} color="#FFD700" style={{position: 'absolute', top: 5, right: 5}} />}
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* CERTIFICATE SECTION (Dynamic Based on Module 9) */}
-        {!isScanning && userProgress >= 9 && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
-            <TouchableOpacity style={localStyles.certificateBtn}>
-              <MaterialCommunityIcons name="certificate" size={24} color="#000" />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={localStyles.certTextBold}>DOWNLOAD SHATKONA CERTIFICATE</Text>
-                <Text style={localStyles.certSubText}>Module 9 Mastery Achieved</Text>
-              </View>
-              <MaterialCommunityIcons name="download" size={20} color="#000" style={{ marginLeft: 'auto' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
+        <View style={styles.header}>
+          <Image source={require('../../assets/images/logo.png')} style={styles.logoSmall} />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity style={styles.startScanBtnTop} onPress={() => startScan('face')}>
+              <Text style={styles.scanBtnText}>FACE SCAN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.startScanBtnTop, { backgroundColor: '#FFD700' }]} onPress={() => startScan('finger')}>
+              <Text style={styles.scanBtnText}>FINGER SCAN</Text>
             </TouchableOpacity>
           </View>
-        )}
+        </View>
 
-        <Text style={styles.statusText}>
-          {isScanning 
-            ? (scanMode === 'face' ? "ANALYZING BIOMETRIC FIELD..." : "PLACE FINGER OVER REAR LENS & FLASH") 
-            : "FASCIAMAX™ BIOMETRIC SCAN"}
-        </Text>
-
-        {/* CAMERA SECTION */}
-        {isScanning && (
-          <View style={styles.cameraFrame}>
-            <CameraView ref={cameraRef} style={styles.camera} facing={scanMode === 'face' ? "front" : "back"}>
-              <View style={styles.overlay}>
-                <Animated.View style={[styles.scannerLine, { transform: [{ translateY }] }]} />
-                <View style={styles.dataStreamLeft}>
-                  <Text style={styles.dataText}>S-INDEX: {Math.floor(110 + Math.random() * 20)}</Text>
-                </View>
-                <View style={styles.dataStreamRight}>
-                  <Text style={styles.dataText}>VITALITY: 98%</Text> 
-                </View>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          
+          {/* 1. PARTNERSHIP TRUST BAR */}
+          {!isScanning && (
+            <View style={styles.trustBar}>
+              <Text style={styles.trustText}>OFFICIAL PARTNERS</Text>
+              <View style={localStyles.logoRow}>
+                {[
+                  require('../../assets/images/nsdc.png'),
+                  require('../../assets/images/ayush.png'),
+                  require('../../assets/images/msme.png'),
+                  require('../../assets/images/who.png'),
+                  require('../../assets/images/g20.png')
+                ].map((img, idx) => (
+                  <View key={idx} style={localStyles.logoContainer}>
+                    <Image source={img} style={localStyles.partnerLogo} />
+                  </View>
+                ))}
               </View>
-            </CameraView>
-          </View>
-        )}
-
-        {/* PILLARS GRID */}
-        {!isScanning && (
-          <>
-            <View style={styles.grid}>
-               {PILLARS.map((pillar: any) => (
-                 <TouchableOpacity 
-                   key={pillar.name} 
-                   style={[styles.tile, { borderColor: pillar.color + '33' }]}
-                   onPress={() => handlePillarPress(pillar.name)}
-                 >
-                    <MaterialCommunityIcons name={pillar.icon as any} size={35} color={pillar.color} />
-                    <Text style={styles.tileText}>{pillar.name}</Text>
-                 </TouchableOpacity>
-               ))}
             </View>
+          )}
 
-            {/* LIVE SEMINAR BUTTON */}
-            <Animated.View style={{ opacity: blinkAnim, alignSelf: 'center', marginVertical: 30 }}>
-              <TouchableOpacity style={[styles.seminarButton, { width: width * 0.85, height: 55, justifyContent: 'center' }]}>
-                <Text style={[styles.seminarText, { fontSize: 14 }]}>JOIN LIVE PROTOCOL SEMINAR 🔴</Text>
+          {/* --- TOUCHABLE PERCENTAGE --- */}
+          <TouchableOpacity onPress={() => setShowClinicalReport(true)} activeOpacity={0.7}>
+            <Text style={styles.percentageText}>{reading}%</Text>
+            <Text style={{ color: '#D4AF37', textAlign: 'center', fontSize: 10, marginTop: -10, marginBottom: 10 }}>
+
+             {/* GOLDEN STAMP - ONLY SHOWS AFTER COMPLETION */}
+{isFinished && !isScanning && (
+  <View 
+    style={{ 
+      marginHorizontal: 20, 
+      backgroundColor: 'rgba(212, 175, 55, 0.15)', 
+      borderRadius: 20, 
+      padding: 20, 
+      borderWidth: 2, 
+      borderColor: '#FFD700',
+      marginBottom: 20,
+      alignItems: 'center',
+      marginTop: 10,
+      // Add a slight shadow to make it "pop" off the home screen
+      shadowColor: '#FFD700',
+      shadowRadius: 10,
+      shadowOpacity: 0.3,
+      elevation: 5
+    }}
+  >
+    <View style={{ position: 'absolute', top: -12, backgroundColor: '#FFD700', paddingHorizontal: 15, borderRadius: 10 }}>
+      <Text style={{ color: '#000', fontSize: 10, fontWeight: '900' }}>BIOMETRIC SCAN VERIFIED</Text>
+    </View>
+
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', marginTop: 5 }}>
+      <View style={{ alignItems: 'center' }}>
+        <Text style={{ color: '#FFD700', fontSize: 26, fontWeight: '900' }}>118</Text>
+        <Text style={{ color: '#D4AF37', fontSize: 9, fontWeight: 'bold' }}>S-INDEX</Text>
+      </View>
+      
+      <MaterialCommunityIcons name="seal-variant" size={45} color="#FFD700" />
+      
+      <View style={{ alignItems: 'center' }}>
+        <Text style={{ color: '#FFD700', fontSize: 26, fontWeight: '900' }}>98%</Text>
+        <Text style={{ color: '#D4AF37', fontSize: 9, fontWeight: 'bold' }}>VITALITY</Text>
+      </View>
+    </View>
+
+    <TouchableOpacity 
+      onPress={() => setIsFinished(false)} 
+      style={{ marginTop: 10, padding: 5 }}
+    >
+      <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10 }}>CLOSE SEAL ✕</Text>
+    </TouchableOpacity>
+  </View>
+)}
+ 
+              TAP FOR CLINICAL ANALYSIS
+            </Text>
+          </TouchableOpacity>
+
+          {/* 2. PROGRESS CARDS WITH LOCKING LOGIC */}
+          {!isScanning && (
+            <View style={{ paddingHorizontal: 20, marginBottom: 15 }}>
+              <Text style={[styles.statusText, { textAlign: 'left' }]}>SHATKONA FASCIAMAX PROTOCOL PROGRESS</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                {[3, 6, 9].map((mod) => {
+                  const isLocked = userProgress < mod;
+                  return (
+                    <TouchableOpacity 
+                      key={mod} 
+                      onPress={() => handleProgressPress(mod)}
+                      style={[
+                        styles.modCard, 
+                        { 
+                          borderColor: isLocked ? '#333' : '#FFD700',
+                          opacity: isLocked ? 0.6 : 1 
+                        }
+                      ]}
+                    >
+                      {isLocked && (
+                        <MaterialCommunityIcons 
+                          name="lock" 
+                          size={14} 
+                          color="#666" 
+                          style={{ position: 'absolute', top: 5, right: 5 }} 
+                        />
+                      )}
+                      <Text style={[styles.modNumber, { color: isLocked ? '#666' : '#FFD700' }]}>{mod}</Text>
+                      <Text style={[styles.modLabel, { color: isLocked ? '#444' : '#D4AF37' }]}>MONTHS</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* 3. CERTIFICATE DOWNLOAD */}
+          {!isScanning && userProgress >= 9 && (
+            <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+              <TouchableOpacity style={localStyles.certificateBtn}>
+                <MaterialCommunityIcons name="certificate" size={20} color="#000" />
+                <Text style={[localStyles.certTextBold, { marginLeft: 8 }]}>DOWNLOAD PROTOCOL PROGRESS CERTIFICATE</Text>
+                <MaterialCommunityIcons name="download" size={18} color="#000" style={{ marginLeft: 'auto' }} />
               </TouchableOpacity>
-            </Animated.View>
-
-            {/* TRUST BAR */}
-            <View style={[styles.trustBar, { marginBottom: 40 }]}>
-              <Text style={styles.trustText}>SHATKONA FOUNDATION PARTNERS</Text>
-              <Text style={styles.logoRow}>G20 • INVEST INDIA • AYUSH • CPRIMA</Text>
             </View>
-          </>
-        )}
-      </ScrollView>
+          )}
 
-      {/* FOOTER */}
-      <TouchableOpacity style={styles.ecoBar} onPress={() => setEcoMenuVisible(true)}>
-        <Text style={styles.ecoText}>SHATKONA ECOSYSTEM ⋮</Text>
-      </TouchableOpacity>
+          <Text style={styles.statusText}>
+            {isScanning 
+              ? (scanMode === 'face' ? "ANALYZING BIOMETRIC FIELD..." : "SCANNING FINGER VASCULARITY...") 
+              : "FASCIAMAX™ LIVE SYSTEM ACTIVE"}
+          </Text>
 
-      {/* ADVERT MODAL */}
+          {/* 4. CAMERA HUD */}
+          {isScanning && (
+            <View style={styles.cameraFrame}>
+              <CameraView ref={cameraRef} style={styles.camera} facing={scanMode === 'face' ? "front" : "back"}>
+                <View style={styles.overlay}>
+                  <Animated.View style={[styles.scannerLine, { transform: [{ translateY }] }]} />
+                </View>
+              </CameraView>
+            </View>
+          )}
+
+          {/* 5. PILLARS GRID */}
+          {!isScanning && (
+            <>
+              <View style={styles.grid}>
+                {PILLARS.map((p: any) => (
+                  <TouchableOpacity key={p.name} style={styles.tile} onPress={() => handlePillarPress(p.name)}>
+                    <MaterialCommunityIcons name={p.icon as any} size={30} color={p.color} />
+                    <Text style={styles.tileText}>{p.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Animated.View style={{ opacity: blinkAnim, alignSelf: 'center', marginVertical: 20 }}>
+                <TouchableOpacity style={[styles.seminarButton, { width: width * 0.85, height: 50, justifyContent: 'center' }]}>
+                  <Text style={styles.seminarText}>JOIN LIVE PROTOCOL WEBINAR 🔴</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </>
+          )}
+        </ScrollView>
+
+        <TouchableOpacity style={styles.ecoBar} onPress={() => setEcoMenuVisible(true)}>
+          <Text style={styles.ecoText}>SHATKONA ECOSYSTEM ⋮</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* --- CLINICAL REPORT MODAL --- */}
+      <Modal visible={showClinicalReport} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: '#000124', borderTopWidth: 3, borderColor: '#D4AF37' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[styles.modalTitle, { color: '#D4AF37', textAlign: 'left', marginBottom: 0 }]}>
+                FASCIAMAX™ CLINICAL REPORT
+              </Text>
+              <TouchableOpacity onPress={() => setShowClinicalReport(false)}>
+                <MaterialCommunityIcons name="close-circle" size={28} color="#D4AF37" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Visual Bio-Map Figure */}
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+               <MaterialCommunityIcons name="human" size={120} color="rgba(212, 175, 55, 0.2)" />
+               <View style={{ 
+                 position: 'absolute', top: 20, backgroundColor: 'red', width: 10, height: 10, borderRadius: 5, 
+                 shadowColor: 'red', shadowRadius: 10, elevation: 10, shadowOpacity: 1, shadowOffset: {width:0, height:0}
+               }} />
+               <Text style={{ color: '#D4AF37', fontSize: 10, marginTop: 5 }}>BIO-FIELD TENSION: CERVICAL CHAIN</Text>
+            </View>
+
+            <View style={{ padding: 15, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 15 }}>
+              <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>S-INDEX: 118</Text>
+              <Text style={{ color: '#D4AF37', fontSize: 12, marginTop: 5 }}>STATUS: {getPhaseAnalysis().status}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 10, fontStyle: 'italic' }}>
+                "{getPhaseAnalysis().advice}"
+              </Text>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.subBtn, { width: '100%', marginTop: 20, backgroundColor: '#D4AF37' }]} 
+              onPress={() => setShowClinicalReport(false)}
+            >
+              <Text style={{ color: '#000', fontWeight: 'bold', textAlign: 'center' }}>SYNC TO CLINIC LOG</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* --- ROADMAP DETAIL MODAL --- */}
+      <Modal visible={showRoadmap} transparent animationType="fade">
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowRoadmap(false)}
+        >
+          <View style={[styles.modalContent, { backgroundColor: '#000B29', borderWidth: 2, borderColor: '#FFD700' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={[styles.modalTitle, { color: '#FFD700', textAlign: 'left' }]}>
+                {roadmapContent[selectedMonth]?.title}
+              </Text>
+              <TouchableOpacity onPress={() => setShowRoadmap(false)}>
+                <MaterialCommunityIcons name="close" size={24} color="#FFD700" />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={{ color: '#FFF', fontWeight: 'bold', marginBottom: 10 }}>
+              FOCUS: {roadmapContent[selectedMonth]?.focus}
+            </Text>
+            
+            <Text style={{ color: 'rgba(255,255,255,0.8)', lineHeight: 24, fontSize: 15 }}>
+              {roadmapContent[selectedMonth]?.details}
+            </Text>
+
+            <TouchableOpacity 
+              style={[styles.subBtn, { width: '100%', marginTop: 20, backgroundColor: '#FFD700' }]} 
+              onPress={() => setShowRoadmap(false)}
+            >
+              <Text style={{ color: '#000', fontWeight: 'bold', textAlign: 'center' }}>UNDERSTOOD</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* AD MODAL */}
       <Modal visible={showAd} animationType="slide">
         <View style={styles.adOverlayView}>
           <TouchableOpacity style={styles.adClose} onPress={() => setShowAd(false)}>
             <MaterialCommunityIcons name="close-circle" size={45} color="#FFD700" />
           </TouchableOpacity>
-          <Video
-            source={{ uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }}
-            style={styles.adVideo}
-            resizeMode={ResizeMode.COVER}
-            shouldPlay
-            isLooping
-          />
+          <Video source={{ uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }} style={styles.adVideo} resizeMode={ResizeMode.COVER} shouldPlay isLooping />
           <View style={styles.adCTA}>
             <Text style={styles.adTitle}>{activePillar} MASTERY</Text>
-            <TouchableOpacity style={styles.subBtn}>
+            <TouchableOpacity style={styles.subBtn} onPress={() => setShowAd(false)}>
               <Text style={styles.subBtnText}>SUBSCRIBE NOW</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* MENU MODAL */}
+      {/* ECOSYSTEM MENU */}
       <Modal visible={ecoMenuVisible} transparent animationType="slide">
         <TouchableOpacity style={styles.modalOverlay} onPress={() => setEcoMenuVisible(false)}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>SHATKONA FOUNDATION ACCESS</Text>
-            {['ASSAM GEOGLYPH MAP', 'SHATVAYU CLINIC LOG', 'CPRIMA PORTAL', 'CORPORATE WELLNESS'].map((item) => (
-              <TouchableOpacity key={item} style={styles.menuItem}>
+            <Text style={styles.modalTitle}>SHATKONA FOUNDATION</Text>
+            {['FASCIAMAX™ CLINIC LOG', 'ASSAM GEOGLYPH MAP', 'CPRIMA PORTAL', 'CORPORATE MASTERY'].map((item) => (
+              <TouchableOpacity key={item} style={styles.menuItem} onPress={() => setEcoMenuVisible(false)}>
                 <Text style={styles.menuText}>{item}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const localStyles = StyleSheet.create({
-  certificateBtn: {
-    flexDirection: 'row',
+  logoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginTop: 8, paddingHorizontal: 5 },
+  logoContainer: { 
+    backgroundColor: '#FFFFFF', 
+    padding: 4, 
+    borderRadius: 6, 
+    width: width / 6.5, 
+    height: 35, 
+    justifyContent: 'center', 
     alignItems: 'center',
-    backgroundColor: '#FFD700',
-    padding: 15,
-    borderRadius: 15,
-    elevation: 5,
-    shadowColor: '#FFD700',
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
+    elevation: 2,
   },
-  certTextBold: { color: '#000', fontWeight: '900', fontSize: 12 },
-  certSubText: { color: '#000', fontSize: 10, opacity: 0.7 },
+  partnerLogo: { width: '100%', height: '100%', resizeMode: 'contain' },
+  certificateBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFD700', padding: 12, borderRadius: 15 },
+  certTextBold: { color: '#000', fontWeight: '900', fontSize: 11 }
 });

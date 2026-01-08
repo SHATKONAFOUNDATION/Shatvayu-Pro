@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   seminarText: { color: 'white', fontWeight: 'bold' },
   statusText: { color: '#D4AF37', fontSize: 13, textAlign: 'center', letterSpacing: 1, marginBottom: 10 },
 
-  // --- NEW ECOSYSTEM STYLES (Fixes your Errors) ---
+  // --- ECOSYSTEM CARDS ---
   modCard: {
     width: (width / 3) - 25,
     height: 70,
@@ -47,7 +47,6 @@ export const styles = StyleSheet.create({
   adSub: { color: '#fff', fontSize: 12, marginVertical: 10, textAlign: 'center' },
   subBtn: { backgroundColor: '#FFD700', paddingHorizontal: 30, paddingVertical: 12, borderRadius: 20, marginTop: 10 },
   subBtnText: { color: '#000', fontWeight: 'bold' },
-  // ----------------------------------------------
 
   // Camera HUD
   cameraFrame: { width: 280, height: 280, borderRadius: 140, overflow: 'hidden', alignSelf: 'center', borderWidth: 2, borderColor: '#D4AF37', backgroundColor: '#000' },
@@ -67,26 +66,95 @@ export const styles = StyleSheet.create({
   // Grid & Pillars
   scrollContent: { paddingBottom: 100 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
-  tile: { width: (width / 2) - 25, height: 120, backgroundColor: 'rgba(255, 255, 255, 0.05)', margin: 8, borderRadius: 20, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
+  tile: { 
+    width: (width / 2) - 25, 
+    height: 120, 
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+    margin: 8, 
+    borderRadius: 20, 
+    borderWidth: 1, 
+    borderColor: '#333', // Default border
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
   tileText: { color: 'white', fontSize: 10, fontWeight: 'bold', textAlign: 'center', marginTop: 12 },
   
-  // Footer & Ecosystem
+  // Footer
   ecoBar: { height: 70, backgroundColor: '#D4AF37', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: 30, borderTopRightRadius: 30 },
   ecoText: { color: '#000124', fontWeight: 'bold', fontSize: 14, letterSpacing: 1 },
   
-  // Modals & Reports
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#D4AF37', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, paddingBottom: 40 },
-  modalTitle: { textAlign: 'center', fontWeight: 'bold', color: '#000124', marginBottom: 20, fontSize: 16 },
-  menuItem: { paddingVertical: 15, alignItems: 'center' },
-  menuText: { color: '#000124', fontWeight: 'bold', fontSize: 17 },
+  // --- Modals, Chain Selector & Reports ---
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,1,36,0.9)', // Deep Navy overlay
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
   
-  reportOverlay: { flex: 1, backgroundColor: 'rgba(0,1,36,0.95)', justifyContent: 'center', alignItems: 'center' },
+  // This fixes the 'modalContent' error
+  modalContent: { 
+    width: '85%',
+    backgroundColor: '#000124', 
+    borderRadius: 30, 
+    padding: 25, 
+    borderWidth: 2, 
+    borderColor: '#D4AF37',
+    shadowColor: '#D4AF37',
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+
+  // This fixes 'modalTitle'
+  modalTitle: { 
+    textAlign: 'center', 
+    fontWeight: 'bold', 
+    color: '#D4AF37', 
+    marginBottom: 20, 
+    fontSize: 18,
+    letterSpacing: 1
+  },
+
+  // This fixes 'menuItem'
+  menuItem: { 
+    paddingVertical: 15, 
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)' 
+  },
+
+  // This fixes 'menuText'
+  menuText: { 
+    color: '#FFF', 
+    fontWeight: 'bold', 
+    fontSize: 17 
+  },
+
+  // Selector Specifics
+  chainOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    padding: 18,
+    borderRadius: 15,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#D4AF3733',
+  },
+  chainText: { color: '#FFF', fontSize: 15, fontWeight: 'bold', marginLeft: 15 },
+  
+  // Phase Labels
+  activePhaseBadge: {
+    fontSize: 8,
+    fontWeight: '900',
+    color: '#D4AF37',
+    marginTop: 5,
+    textTransform: 'uppercase'
+  },
+  
   reportContent: { width: '85%', backgroundColor: '#000124', borderRadius: 30, padding: 30, alignItems: 'center', borderWidth: 2, borderColor: '#D4AF37' },
   reportTitle: { color: '#D4AF37', fontSize: 20, fontWeight: 'bold', marginTop: 15 },
   sIndexResult: { color: 'white', fontSize: 40, fontWeight: '900', marginTop: 10 },
-  hrvText: { color: '#D4AF37', fontSize: 14, marginBottom: 10 },
   dividerGold: { height: 1, backgroundColor: '#D4AF3744', width: '100%', marginVertical: 20 },
   closeButton: { backgroundColor: '#D4AF37', paddingVertical: 12, paddingHorizontal: 40, borderRadius: 20 },
-  closeButtonText: { color: '#000124', fontWeight: 'bold' },
 });

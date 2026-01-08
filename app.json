@@ -3,7 +3,7 @@
     "name": "FasciaMax",
     "slug": "fasciamax-portal",
     "version": "1.0.0",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "fasciamax-app",
