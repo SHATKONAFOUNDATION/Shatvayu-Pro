@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ResizeMode, Video } from 'expo-av';
-import { CameraView } from 'expo-camera';
+import { CameraView } from 'expo-camera'; // For your Face/Finger scans
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
@@ -15,11 +15,13 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-
+import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
+// Import your custom constants
 import { PILLARS } from '../constants/pillars';
 import { styles } from '../constants/styles';
 
-const { width } = Dimensions.get('window');
+// CONSOLIDATED DIMENSIONS (Fixes the duplicate error)
+const { width, height } = Dimensions.get('window');
 
 export default function PatientScreen({ 
   isScanning, 
@@ -93,6 +95,33 @@ export default function PatientScreen({
     setShowRoadmap(true);
   };
 const [isFinished, setIsFinished] = useState(false);
+const [landmarks, setLandmarks] = useState<any>(null);
+
+const renderSkeletalOverlay = () => {
+  if (scanMode !== 'skeletal' || !landmarks) return null;
+
+  const ear = landmarks[7];      
+  const shoulder = landmarks[11]; 
+  
+  const ex = ear.x * width;
+  const ey = ear.y * height;
+  const sx = shoulder.x * width;
+  const sy = shoulder.y * height;
+
+  const angle = Math.atan2(sy - ey, sx - ex) * (180 / Math.PI);
+
+  return (
+    <Svg style={StyleSheet.absoluteFill}>
+      <Line x1={ex} y1={ey} x2={sx} y2={sy} stroke="#D4AF37" strokeWidth="3" />
+      <Circle cx={ex} cy={ey} r="6" fill="#FFD700" />
+      <Circle cx={sx} cy={sy} r="6" fill="#FFD700" />
+      <SvgText x={sx + 10} y={sy} fill="#FFD700" fontSize="16" fontWeight="bold">
+        {`${Math.round(angle)}° Deviation`}
+      </SvgText>
+    </Svg>
+  );
+};
+//
   return (
     <View style={{ flex: 1 }}>
       {/* BACKGROUND LAYER */}
