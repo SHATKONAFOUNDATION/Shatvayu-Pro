@@ -7,6 +7,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Linking,
   Modal,
   SafeAreaView,
   ScrollView,
@@ -421,18 +422,32 @@ const renderSkeletalOverlay = () => {
       </Modal>
 
       {/* ECOSYSTEM MENU */}
-      <Modal visible={ecoMenuVisible} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} onPress={() => setEcoMenuVisible(false)}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>SHATVAYU GLOBAL FOUNDATION</Text>
-            {['FASCIAMAX™ CLINIC LOG', 'ASSAM GEOGLYPH MAP', 'CPRIMA PORTAL', 'CORPORATE MASTERY'].map((item) => (
-              <TouchableOpacity key={item} style={styles.menuItem} onPress={() => setEcoMenuVisible(false)}>
-                <Text style={styles.menuText}>{item}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+<Modal visible={ecoMenuVisible} transparent animationType="slide">
+  <TouchableOpacity style={styles.modalOverlay} onPress={() => setEcoMenuVisible(false)}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>SHATVAYU GLOBAL FOUNDATION</Text>
+      
+      {['FASCIAMAX™ CLINIC LOG', 'ASSAM GEOGLYPH MAP', 'CPRIMA PORTAL', 'CORPORATE MASTERY'].map((item) => (
+        <TouchableOpacity 
+          key={item} 
+          style={styles.menuItem} 
+          onPress={() => {
+            setEcoMenuVisible(false);
+            if (item === 'CPRIMA PORTAL') {
+              // This links your research wing to the .org foundation site
+              Linking.openURL('https://shatvayu.org');
+            } else if (item === 'FASCIAMAX™ CLINIC LOG') {
+              // This links your commercial side to the .com site
+              Linking.openURL('https://shatvayu.com');
+            }
+          }}
+        >
+          <Text style={styles.menuText}>{item}</Text>
         </TouchableOpacity>
-      </Modal>
+      ))}
+    </View>
+  </TouchableOpacity>
+</Modal>
     </View>
   );
 }
