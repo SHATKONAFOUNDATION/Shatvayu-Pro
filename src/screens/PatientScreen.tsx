@@ -67,7 +67,46 @@ export default function PatientScreen({
     }
     return analysis;
   };
+// --- SHATKONA DIAGNOSTIC ENGINE ---
+  const getShatkonaAnalysis = () => {
+    // We use your skeletal angle to determine the Doshic Path
+    // Assuming 'angle' from your renderSkeletalOverlay logic
+    const ear = landmarks?.[7];
+    const shoulder = landmarks?.[11];
+    let deviation = 0;
 
+    if (ear && shoulder) {
+      const ex = ear.x * width;
+      const ey = ear.y * height;
+      const sx = shoulder.x * width;
+      const sy = shoulder.y * height;
+      deviation = Math.abs(Math.atan2(sy - ey, sx - ex) * (180 / Math.PI));
+    }
+
+    // Logic: High deviation (> 25°) = Vata (Digital Toxicity)
+    if (deviation > 25) {
+      return {
+        status: "VATA IMBALANCE (High Tension)",
+        path: "VATA_BLUE",
+        advice: "Digital Burnout detected. Bithika Lotion required on Portal 3 (Neck/Occiput).",
+        color: "#4A90E2" // Blue Path
+      };
+    } else if (userProgress < 4) {
+      return {
+        status: "KAPHA STAGNATION",
+        path: "KAPHA_GREEN",
+        advice: "Fascial Adhesion detected. Increase Pillar 1 (Prana Pulse) intensity.",
+        color: "#50E3C2" // Green Path
+      };
+    }
+    
+    return {
+      status: "SAMA (Optimal Tensegrity)",
+      path: "SAMA_NEUTRAL",
+      advice: "Neutral Flow active. Maintenance protocols optimized.",
+      color: "#D4AF37" // Golden Path
+    };
+  };
   const roadmapContent: any = {
     3: {
       title: "PHASE 1: FOUNDATION",
@@ -352,13 +391,24 @@ const renderSkeletalOverlay = () => {
                <Text style={{ color: '#D4AF37', fontSize: 10, marginTop: 5 }}>BIO-FIELD TENSION: CERVICAL CHAIN</Text>
             </View>
 
-            <View style={{ padding: 15, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 15 }}>
-              <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>S-INDEX: 118</Text>
-              <Text style={{ color: '#D4AF37', fontSize: 12, marginTop: 5 }}>STATUS: {getPhaseAnalysis().status}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 10, fontStyle: 'italic' }}>
-                "{getPhaseAnalysis().advice}"
-              </Text>
-            </View>
+            {/* Inside the Clinical Report Modal */}
+<View style={{ padding: 15, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 15 }}>
+  <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
+    SHATKONA PATH: {getShatkonaAnalysis().status}
+  </Text>
+  
+  {/* NEW: Bithika Trigger */}
+  <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+    <MaterialCommunityIcons name="flask-outline" size={20} color="#D4AF37" />
+    <Text style={{ color: '#D4AF37', fontSize: 13, marginLeft: 8, fontWeight: 'bold' }}>
+      EPIGENETIC FLUSH: {getShatkonaAnalysis().path === 'VATA_BLUE' ? "PORTAL 3 (NECK)" : "PORTAL 6 (FEET)"}
+    </Text>
+  </View>
+
+  <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 10, fontStyle: 'italic' }}>
+    "{getShatkonaAnalysis().advice}"
+  </Text>
+</View>
 
             <TouchableOpacity 
               style={[styles.subBtn, { width: '100%', marginTop: 20, backgroundColor: '#D4AF37' }]} 
@@ -425,9 +475,9 @@ const renderSkeletalOverlay = () => {
 <Modal visible={ecoMenuVisible} transparent animationType="slide">
   <TouchableOpacity style={styles.modalOverlay} onPress={() => setEcoMenuVisible(false)}>
     <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>SHATVAYU GLOBAL FOUNDATION</Text>
+      <Text style={styles.modalTitle}>FASCIAMAX SHATVAYU PVT LTD</Text>
       
-      {['FASCIAMAX™ CLINIC LOG', 'ASSAM GEOGLYPH MAP', 'CPRIMA PORTAL', 'CORPORATE MASTERY'].map((item) => (
+      {['FASCIAMAX™ CLINICS LOG',  'CORPORATE MASTERY'].map((item) => (
         <TouchableOpacity 
           key={item} 
           style={styles.menuItem} 

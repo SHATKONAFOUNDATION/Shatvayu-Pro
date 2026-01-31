@@ -3,7 +3,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000124' },
+  container: { flex: 1, backgroundColor: '#c3c4e0' },
   
   // Layout & Header
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, height: 75 },
