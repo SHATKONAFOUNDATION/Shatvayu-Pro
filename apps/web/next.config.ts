@@ -1,18 +1,15 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   typescript: {
-    // This ignores TS errors during the build so Netlify doesn't crash
+    // This ensures Netlify doesn't stop the build for minor TS warnings
     ignoreBuildErrors: true,
   },
-  // In Next.js 15/16, if 'eslint' shows an error, it's often because 
-  // of the way the NextConfig type is imported. We can bypass it like this:
   eslint: {
+    // This prevents ESLint from crashing the build
     ignoreDuringBuilds: true,
-  } as any, 
-  
+  },
+  // Set this to 'standalone' for better compatibility with monorepos
   output: 'standalone',
-  
   images: {
     unoptimized: true,
   },
