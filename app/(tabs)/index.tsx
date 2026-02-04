@@ -1,224 +1,154 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Vibration,
-  View
-} from 'react-native';
-import LandingPage from './LandingPage';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// Assuming your visuals are in this component
-import PatientScreen from '../../src/screens/PatientScreen';
+const { width } = Dimensions.get('window');
 
-const { width, height } = Dimensions.get('window');
+export default function App() {
+  const router = useRouter();
+  const [viewMode, setViewMode] = useState<'RITUAL' | 'ACADEMY'>('RITUAL');
 
-function ArchitectResetDashboard() {
-  // --- NAVIGATION STATE ---
-  const [viewMode, setViewMode] = useState<'clinic' | 'vision'>('clinic');
+  // --- SOVEREIGN CALENDAR LOGIC ---
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const today = days[new Date().getDay()];
 
-  // --- SCANNER LOGIC STATE ---
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanMode, setScanMode] = useState<'face' | 'finger'>('face');
-  const [reading, setReading] = useState(0);
-  const [ecoMenuVisible, setEcoMenuVisible] = useState(false);
-  const [showReport, setShowReport] = useState<{
-    hrv: number;
-    stress: string;
-    timestamp: string;
-  } | null>(null);
-
-  // --- PERMISSIONS & REFS ---
-  const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef<CameraView>(null);
-
-  // --- ANIMATION VALUES ---
-  const translateY = useRef(new Animated.Value(0)).current;
-  const blinkAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-
-  // --- ANIMATION LOOPS ---
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(blinkAnim, { toValue: 0.3, duration: 1000, useNativeDriver: true }),
-        Animated.timing(blinkAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
-
-  useEffect(() => {
-    if (isScanning) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(translateY, { toValue: 240, duration: 2000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(translateY, { toValue: 0, duration: 2000, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        ])
-      ).start();
-
-      Animated.loop(
-        Animated.timing(rotateAnim, { toValue: 1, duration: 4000, easing: Easing.linear, useNativeDriver: true })
-      ).start();
-
-      const interval = setInterval(() => {
-        setReading((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            finishScan();
-            return 100;
-          }
-          return prev + 1;
-        });
-      }, 100); 
-
-      return () => clearInterval(interval);
-    }
-  }, [isScanning]);
-
-  // --- SCAN HANDLERS ---
-  const startScan = (mode: 'face' | 'finger') => {
-    setScanMode(mode);
-    setReading(0);
-    setIsScanning(true);
+  const getRoutine = () => {
+    if (today === 'Monday' || today === 'Thursday') return { id: 'A', name: 'UPPER COMMAND', sub: 'Digital Reset', color: '#38bdf8' };
+    if (today === 'Tuesday' || today === 'Friday') return { id: 'B', name: 'CORE ENGINE', sub: 'Stability & Root', color: '#fbbf24' };
+    if (today === 'Wednesday' || today === 'Saturday') return { id: 'C', name: 'SPIRAL FOUNDATION', sub: 'Agility & Flow', color: '#4ade80' };
+    return { id: 'Nidra', name: 'YOGA NIDRA', sub: 'Deep Recovery', color: '#a855f7' };
   };
 
-  const finishScan = () => {
-    Vibration.vibrate([0, 100, 50, 100]);
-    const calculatedHRV = Math.floor(40 + Math.random() * 40);
-    const sIndex = calculatedHRV > 60 ? 'Low' : 'High';
-    const timeNow = new Date().toLocaleTimeString();
-    const reportData = { hrv: calculatedHRV, stress: sIndex, timestamp: timeNow };
-    
-    setShowReport(reportData);
-    setIsScanning(false); 
-  };
+  const routine = getRoutine();
 
-  const rotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  // --- MAIN RENDER ---
   return (
     <View style={styles.mainContainer}>
       
-      {/* UNIVERSAL HEADER */}
+      {/* 🏛️ ARCHITECT HEADER */}
       <View style={styles.header}>
         <View>
           <Text style={styles.logoText}>FASCIAMAX</Text>
           <Text style={styles.subLogo}>BY SHATVAYU</Text>
         </View>
         <TouchableOpacity 
-          style={styles.toggleBtn}
-          onPress={() => setViewMode(viewMode === 'clinic' ? 'vision' : 'clinic')}
+          style={styles.navBtn}
+          onPress={() => setViewMode(viewMode === 'RITUAL' ? 'ACADEMY' : 'RITUAL')}
         >
-          <Text style={styles.toggleText}>
-            {viewMode === 'clinic' ? "🌐 FOUNDATION" : "🧬 CLINIC"}
+          <Text style={styles.navText}>
+            {viewMode === 'RITUAL' ? "🎓 ACCESS VAULT" : "🧘 DAILY RITUAL"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {viewMode === 'clinic' ? (
-        /* MODE 1: CLINICAL SCANNER & PATIENT INTERFACE */
-        <PatientScreen 
-          isScanning={isScanning}
-          reading={reading}
-          scanMode={scanMode}
-          cameraRef={cameraRef}
-          translateY={translateY}
-          blinkAnim={blinkAnim}
-          rotation={rotation}
-          startScan={startScan}
-          showReport={showReport}
-          setShowReport={setShowReport}
-          setReading={setReading}
-          setEcoMenuVisible={setEcoMenuVisible}
-          ecoMenuVisible={ecoMenuVisible}
-          permission={permission}
-          requestPermission={requestPermission}
-        />
-      ) : (
-        /* MODE 2: VISIONARY FOUNDATION HUB */
-        <ScrollView contentContainerStyle={styles.visionScroll}>
-          <Text style={styles.visionTitle}>Shatvayu Global Foundation</Text>
-          <Text style={styles.visionSubtitle}>Mission: Global Pain-Free Living</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {viewMode === 'RITUAL' ? (
+          <View>
+            <View style={styles.titleSection}>
+              <Text style={styles.sectionTitle}>Sovereign Maintenance</Text>
+              <Text style={styles.dateText}>{today.toUpperCase()} PROTOCOL</Text>
+            </View>
 
-          <TouchableOpacity style={styles.visionCard}>
-            <Text style={styles.cardTitle}>3KM Nagaon Geoglyph</Text>
-            <Text style={styles.cardDesc}>The world's largest hexagonal healing geoglyph project.</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.ritualCard, { borderLeftColor: routine.color }]} 
+              activeOpacity={0.9}
+              onPress={() => router.push({ pathname: '/player', params: { id: routine.id } })}
+            >
+              <View style={styles.cardHeader}>
+                <Text style={styles.ritualTag}>30-MINUTE RESET</Text>
+                <View style={[styles.statusDot, { backgroundColor: routine.color }]} />
+              </View>
+              
+              <Text style={styles.ritualName}>{routine.name}</Text>
+              <Text style={styles.ritualSubText}>{routine.sub}</Text>
+              
+              <View style={styles.playButton}>
+                <Text style={styles.playText}>INITIATE FLOW</Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.visionCard}>
-            <Text style={styles.cardTitle}>CPRI & GPFLM</Text>
-            <Text style={styles.cardDesc}>Clinical Physiology Research & Global Pain Free Mission.</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      )}
+            <View style={styles.statsContainer}>
+               <View style={styles.statBox}>
+                  <Text style={styles.statValue}>12</Text>
+                  <Text style={styles.statLabel}>DAY STREAK</Text>
+               </View>
+               <View style={styles.statBox}>
+                  <Text style={styles.statValue}>88%</Text>
+                  <Text style={styles.statLabel}>VAGAL TONE</Text>
+               </View>
+            </View>
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.sectionTitle}>The Pillar Vault</Text>
+            <Text style={styles.sectionDesc}>Forensic Masterclasses for the Snayu-Matrix.</Text>
+            
+            {[
+              { id: '1', title: 'Prana Pulse', status: 'UNLOCKED' },
+              { id: '2', title: 'Myofascial Liberation', status: 'LOCKED' },
+              { id: '3', title: 'Yogic Stretching', status: 'LOCKED' },
+            ].map((pillar) => (
+              <TouchableOpacity key={pillar.id} style={styles.pillarCard}>
+                <Text style={styles.pillarNum}>0{pillar.id}</Text>
+                <View style={{ flex: 1, marginLeft: 15 }}>
+                  <Text style={styles.pillarTitle}>{pillar.title}</Text>
+                  <Text style={styles.pillarStatus}>{pillar.status}</Text>
+                </View>
+                <Text style={styles.lockIcon}>{pillar.status === 'LOCKED' ? '🔒' : '▶'}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </ScrollView>
 
-      {/* UNIVERSAL FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2026 FASCIAMAX | SHATVAYU</Text>
+        <Text style={styles.footerText}>© 2026 SOVEREIGN ARCHITECTURE | SHATVAYU</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#000' },
+  mainContainer: { flex: 1, backgroundColor: '#050505' },
   header: { 
-    paddingTop: 60, 
-    paddingBottom: 20, 
-    paddingHorizontal: 25, 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    backgroundColor: '#0a0a0a',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a'
+    paddingTop: 60, paddingBottom: 20, paddingHorizontal: 25, 
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: '#0a0a0a', borderBottomWidth: 1, borderBottomColor: '#1a1a1a'
   },
-  logoText: { color: '#38bdf8', fontSize: 20, fontWeight: '900', letterSpacing: 2 },
-  subLogo: { color: '#64748b', fontSize: 8, fontWeight: 'bold', letterSpacing: 1 },
-  toggleBtn: { backgroundColor: '#1e293b', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, borderWidth: 1, borderColor: '#334155' },
-  toggleText: { color: '#38bdf8', fontSize: 10, fontWeight: 'bold' },
+  logoText: { color: '#fbbf24', fontSize: 20, fontWeight: '900', letterSpacing: 2 },
+  subLogo: { color: '#475569', fontSize: 8, fontWeight: 'bold', letterSpacing: 1 },
+  navBtn: { backgroundColor: '#1e293b', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 8, borderWidth: 1, borderColor: '#334155' },
+  navText: { color: '#fbbf24', fontSize: 10, fontWeight: '900' },
   
-  visionScroll: { padding: 25, paddingBottom: 100 },
-  visionTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 5 },
-  visionSubtitle: { color: '#38bdf8', fontSize: 14, marginBottom: 30, fontWeight: '500' },
-  visionCard: { 
-    backgroundColor: '#111', 
-    padding: 25, 
-    borderRadius: 15, 
-    marginBottom: 20, 
-    borderWidth: 1, 
-    borderColor: '#222' 
+  scrollContent: { padding: 25, paddingBottom: 120 },
+  titleSection: { marginBottom: 25 },
+  sectionTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+  dateText: { color: '#64748b', fontSize: 12, fontWeight: 'bold', marginTop: 4, letterSpacing: 1 },
+  
+  ritualCard: { 
+    backgroundColor: '#0f172a', padding: 25, borderRadius: 20, 
+    borderLeftWidth: 6, marginBottom: 25,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.5, shadowRadius: 20
   },
-  cardTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  cardDesc: { color: '#94a3b8', fontSize: 13, lineHeight: 20 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  ritualTag: { color: '#94a3b8', fontSize: 10, fontWeight: 'bold', letterSpacing: 2 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  ritualName: { color: '#fff', fontSize: 32, fontWeight: '900' },
+  ritualSubText: { color: '#94a3b8', fontSize: 16, marginTop: 5, fontWeight: '500' },
+  playButton: { backgroundColor: '#fbbf24', marginTop: 25, padding: 18, borderRadius: 12, alignItems: 'center' },
+  playText: { color: '#000', fontWeight: '900', fontSize: 14, letterSpacing: 1 },
 
-  footer: { 
-    position: 'absolute', 
-    bottom: 0, 
-    width: '100%', 
-    padding: 15, 
-    backgroundColor: '#0a0a0a', 
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#1a1a1a'
-  },
-  footerText: { color: '#475569', fontSize: 9, fontWeight: 'bold', letterSpacing: 1 }
+  statsContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+  statBox: { backgroundColor: '#0a0a0a', width: '47%', padding: 20, borderRadius: 15, borderWidth: 1, borderColor: '#1a1a1a', alignItems: 'center' },
+  statValue: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+  statLabel: { color: '#475569', fontSize: 9, fontWeight: '900', marginTop: 5 },
+
+  sectionDesc: { color: '#64748b', fontSize: 14, marginBottom: 25 },
+  pillarCard: { backgroundColor: '#0a0a0a', padding: 20, borderRadius: 15, marginBottom: 15, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#1a1a1a' },
+  pillarNum: { color: '#fbbf24', fontSize: 18, fontWeight: '900' },
+  pillarTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  pillarStatus: { color: '#475569', fontSize: 10, fontWeight: 'bold', marginTop: 2 },
+  lockIcon: { color: '#334155', fontSize: 18 },
+
+  footer: { position: 'absolute', bottom: 0, width: '100%', padding: 20, backgroundColor: '#050505', alignItems: 'center' },
+  footerText: { color: '#1e293b', fontSize: 9, fontWeight: 'bold', letterSpacing: 1 }
 });
-// --- THE SOVEREIGN GATEKEEPER ---
-export default function App() {
-  const [hasAccess, setHasAccess] = useState(false);
-
-  if (!hasAccess) {
-    return <LandingPage onEnterSanctum={() => setHasAccess(true)} />;
-  }
-
-  return <ArchitectResetDashboard />;
-}
