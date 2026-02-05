@@ -17,7 +17,6 @@ jobs:
         run: |
           npm ci
           npm run build
-        working-directory: ./shatkonaapp
 
       # Step 2: Deploy to Firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
