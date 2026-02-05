@@ -11,10 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build
+      
+      # Step 1: Install and Build INSIDE the subfolder
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
+        working-directory: ./shatkonaapp
+
+      # Step 2: Deploy to Firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHATKONA }}
           channelId: live
           projectId: shatkona-2025
+          entryPoint: ./shatkonaapp
