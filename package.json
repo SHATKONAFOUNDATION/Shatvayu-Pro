@@ -72,7 +72,7 @@
     "type": "modules",
     "jsSrcsDir": "tm",
     "android": {
-      "javaPackageName": "com.shatkona"
+      "javaPackageName": "com.shatvayu"
     }
   }
 }
