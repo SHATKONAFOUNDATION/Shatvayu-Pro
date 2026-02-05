@@ -1,54 +1,82 @@
-"use client"; // <--- Add this exact line at the very top
+"use client";
 
 export default function LandingPage() {
-  return (
-    <main style={{ fontFamily: 'sans-serif', color: '#333' }}>
-      {/* HERO: Global Pain Free Living Mission */}
-      <section style={{ padding: '50px', textAlign: 'center', background: '#f4f4f4' }}>
-        <h1 style={{ fontSize: '2.5rem' }}>Global Pain Free Living Mission</h1>
-        <p style={{ fontSize: '1.2rem' }}>A visionary initiative by Shatkona Foundation.</p>
-        <button style={{ padding: '10px 20px', fontSize: '1rem', cursor: 'pointer' }}>
-          Join the Mission
-        </button>
-      </section>
+  const handleAppRedirect = () => {
+    // This tries to open the app. If it fails (like on a PC), 
+    // it will stay on the page.
+    window.location.href = 'fasciamax://player?id=daily';
+    
+    // Fallback for Desktop users
+    setTimeout(() => {
+      if (document.hasFocus()) {
+        alert("Mobile app not detected. Please scan the QR code on your phone to start the ritual!");
+      }
+    }, 2000);
+  };
 
-      {/* THEORY: The Science of Fascia */}
-      <section style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-        <h2>The Theory of the Shatkona Protocol</h2>
-        <p>
-          Our protocol is built on the science of Myofascial Pain Syndrome (MPS). 
-          By understanding the <strong>Six Pillars</strong>, we bridge the gap between 
-          vagal toning, brainwave shifts, and physical liberation.
+  return (
+    <main style={{ backgroundColor: '#06010e', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+      
+      {/* HERO SECTION */}
+      <section style={{ padding: '80px 20px', textAlign: 'center', borderBottom: '1px solid #1a1a1a' }}>
+        <h1 style={{ fontSize: '3rem', color: '#fbbf24', letterSpacing: '3px', fontWeight: '900' }}>
+          GLOBAL PAIN FREE LIVING MISSION
+        </h1>
+        <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '700px', margin: '20px auto' }}>
+          A visionary initiative by Shatvayu Global Foundation to liberate the world from chronic pain through the Snayu-Matrix.
         </p>
-        <p><em>Practice (30-min Flow & Videos) is available exclusively in the mobile app for subscribers.</em></p>
       </section>
 
       {/* THE 6 PILLARS GRID */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', padding: '40px' }}>
-        <div style={cardStyle}><h3>Prana Pulse</h3><p>ANS Regulation</p></div>
-        <div style={cardStyle}><h3>Chakra Balance</h3><p>CSF Flow</p></div>
-        <div style={cardStyle}><h3>Yogasana</h3><p>Fascia Stretch</p></div>
-        <div style={cardStyle}><h3>Myofascial Liberation</h3><p>Trigger Release</p></div>
-        <div style={cardStyle}><h3>Yoga Nidra</h3><p>Neuroplasticity</p></div>
-        <div style={cardStyle}><h3>Vow of Mastery</h3><p>6-Day Commitment</p></div>
+      <section style={{ padding: '60px 25px' }}>
+        <h2 style={{ textAlign: 'center', color: '#fff', marginBottom: '40px', letterSpacing: '1px' }}>THE SHATKONA PROTOCOL</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+          {[
+            { title: 'Prana Pulse', desc: 'ANS Regulation & Vagal Toning' },
+            { title: 'Myofascial Liberation', desc: 'Trigger Point & Snayu Release' },
+            { title: 'Yogasana', desc: 'Fascial Stretch & Structural Alignment' },
+            { title: 'Strength & Stabilization', desc: 'Integrity for the Snayu-Matrix' },
+            { title: 'Chakra Balance', desc: 'Vertical CSF Flow Optimization' },
+            { title: 'Yoga Nidra & Vow of Mastery', desc: 'Neuroplasticity & Brain Reprogramming' }
+          ].map((pillar, i) => (
+            <div key={i} style={cardStyle}>
+              <h3 style={{ color: '#fbbf24', fontSize: '1.2rem' }}>{pillar.title}</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '10px' }}>{pillar.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* CALL TO ACTION: Redirect to App */}
-      <section style={{ textAlign: 'center', padding: '50px' }}>
+      {/* CALL TO ACTION */}
+      <section style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: '#04011c' }}>
         <button 
-          onClick={() => window.location.href = 'fasciamax://login'}
-          style={{ padding: '15px 30px', background: '#D4AF37', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold' }}
+          onClick={handleAppRedirect}
+          style={{ 
+            padding: '20px 40px', 
+            background: '#fbbf24', 
+            color: '#000', 
+            border: 'none', 
+            borderRadius: '12px', 
+            fontWeight: '900', 
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            letterSpacing: '1px'
+          }}
         >
-          LOG IN TO START 30-MIN RITUAL
+          LOG IN TO START
         </button>
+        <p style={{ color: '#475569', marginTop: '20px', fontSize: '0.8rem' }}>
+          © 2026 FASCIAMAX | SHATVAYU FOUNDATION
+        </p>
       </section>
     </main>
   );
 }
 
 const cardStyle = {
-  padding: '20px',
-  border: '1px solid #ddd',
-  borderRadius: '8px',
+  padding: '30px',
+  backgroundColor: '#130123',
+  border: '1px solid #080808',
+  borderRadius: '15px',
   textAlign: 'center' as const,
 };

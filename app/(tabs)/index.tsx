@@ -1,12 +1,30 @@
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { signInWithCustomToken } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+
+// Internal Imports
+import { auth } from '../../lib/firebase';
+import { useAuth } from '../context/AuthContext'; // Verify this path
 
 const { width } = Dimensions.get('window');
 
 export default function FasciamaxHome() {
   const router = useRouter();
+  const { profile } = useAuth();
   const [viewMode, setViewMode] = useState<'RITUAL' | 'ACADEMY'>('RITUAL');
+
+  // --- 6-DAY VOW LOGIC ---
+  const masteryDays = [1, 2, 3, 4, 5, 6];
 
   // --- SOVEREIGN CALENDAR LOGIC ---
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -20,6 +38,22 @@ export default function FasciamaxHome() {
   };
 
   const routine = getRoutine();
+
+  // --- WEB-TO-APP HANDSHAKE ---
+  useEffect(() => {
+    const handleDeepLink = async (event: { url: string }) => {
+      let data = Linking.parse(event.url);
+      if (data.queryParams?.token) {
+        try {
+          await signInWithCustomToken(auth, data.queryParams.token as string);
+        } catch (error) {
+          console.error("Web-to-App Auth Failed", error);
+        }
+      }
+    };
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    return () => subscription.remove();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -44,11 +78,38 @@ export default function FasciamaxHome() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {viewMode === 'RITUAL' ? (
           <View>
+            {/* 💎 6-DAY VOW TRACKER */}
+            <View style={styles.trackerContainer}>
+              <Text style={styles.trackerTitle}>YOUR 6-DAY VOW OF MASTERY</Text>
+              <View style={styles.daysRow}>
+                {masteryDays.map((day) => {
+                  const isCompleted = (profile?.progress?.currentDay || 0) >= day;
+                  const isCurrent = (profile?.progress?.currentDay || 0) + 1 === day;
+                  
+                  return (
+                    <View key={day} style={styles.dayHexagon}>
+                      <View style={[
+                        styles.hexInner, 
+                        isCompleted && { backgroundColor: '#fbbf24' }, 
+                        isCurrent && { borderColor: '#fbbf24', borderWidth: 2 } 
+                      ]}>
+                        <Text style={[styles.dayText, isCompleted && { color: '#000' }]}>{day}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+              <Text style={styles.statusSub}>
+                {profile?.progress?.currentDay ? `Day ${profile.progress.currentDay} of 6 Completed` : "Initiate Day 1"}
+              </Text>
+            </View>
+
             <View style={styles.titleSection}>
               <Text style={styles.sectionTitle}>Sovereign Maintenance</Text>
               <Text style={styles.dateText}>{today.toUpperCase()} PROTOCOL</Text>
             </View>
 
+            {/* MAIN RITUAL CARD */}
             <TouchableOpacity 
               style={[styles.ritualCard, { borderLeftColor: routine.color }]} 
               activeOpacity={0.9}
@@ -69,8 +130,8 @@ export default function FasciamaxHome() {
 
             <View style={styles.statsContainer}>
                <View style={styles.statBox}>
-                  <Text style={styles.statValue}>12</Text>
-                  <Text style={styles.statLabel}>DAY STREAK</Text>
+                  <Text style={styles.statValue}>{profile?.stats?.totalRituals || 0}</Text>
+                  <Text style={styles.statLabel}>TOTAL RITUALS</Text>
                </View>
                <View style={styles.statBox}>
                   <Text style={styles.statValue}>88%</Text>
@@ -81,15 +142,19 @@ export default function FasciamaxHome() {
         ) : (
           <View>
             <Text style={styles.sectionTitle}>The Pillar Vault</Text>
-            <Text style={styles.sectionDesc}>Forensic Masterclasses for the Snayu-Matrix.</Text>
+            <Text style={styles.sectionDesc}>Masterclasses for the Snayu-Matrix.</Text>
             
             {[
-              { id: '1', title: 'Prana Pulse', status: 'UNLOCKED' },
-              { id: '2', title: 'Myofascial Liberation', status: 'LOCKED' },
-              { id: '3', title: 'Yogic Stretching', status: 'LOCKED' },
+              { id: 'p1', title: 'Prana Pulse', status: 'UNLOCKED' },
+              { id: 'p2', title: 'Myofascial Liberation', status: 'LOCKED' },
+              { id: 'p3', title: 'Yogic Stretching', status: 'LOCKED' },
             ].map((pillar) => (
-              <TouchableOpacity key={pillar.id} style={styles.pillarCard}>
-                <Text style={styles.pillarNum}>0{pillar.id}</Text>
+              <TouchableOpacity 
+                key={pillar.id} 
+                style={styles.pillarCard}
+                onPress={() => pillar.status === 'UNLOCKED' ? router.push({ pathname: '/player' as any, params: { id: pillar.id } }) : null}
+              >
+                <Text style={styles.pillarNum}>{pillar.id.replace('p', '0')}</Text>
                 <View style={{ flex: 1, marginLeft: 15 }}>
                   <Text style={styles.pillarTitle}>{pillar.title}</Text>
                   <Text style={styles.pillarStatus}>{pillar.status}</Text>
@@ -97,18 +162,27 @@ export default function FasciamaxHome() {
                 <Text style={styles.lockIcon}>{pillar.status === 'LOCKED' ? '🔒' : '▶'}</Text>
               </TouchableOpacity>
             ))}
+
+            <View style={{ marginTop: 10, marginBottom: 30 }}>
+              <TouchableOpacity style={styles.clinicBtn} onPress={() => router.push('/clinics' as any)}>
+                <Text style={styles.actionBtnText}>📍 FIND NEAREST CLINIC</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.storeBtn} onPress={() => router.push('/clinics' as any)}>
+                <Text style={styles.actionBtnText}>🛍️ ORDER SCULPTOR TOOLS</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </ScrollView>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2026 SOVEREIGN ARCHITECTURE | SHATVAYU</Text>
+        <Text style={styles.footerText}>© 2026 FASCIAMAX | SHATVAYU</Text>
       </View>
     </View>
   );
 }
 
-// ⚠️ IMPORTANT: Ensure the styles object is OUTSIDE the function component
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: '#050505' },
   header: { 
@@ -121,14 +195,20 @@ const styles = StyleSheet.create({
   navBtn: { backgroundColor: '#1e293b', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 8, borderWidth: 1, borderColor: '#334155' },
   navText: { color: '#fbbf24', fontSize: 10, fontWeight: '900' },
   scrollContent: { padding: 25, paddingBottom: 120 },
+  
+  // Tracker Styles
+  trackerContainer: { padding: 20, backgroundColor: '#0a0a0a', borderRadius: 20, marginBottom: 25, borderWidth: 1, borderColor: '#1a1a1a' },
+  trackerTitle: { color: '#475569', fontSize: 10, fontWeight: '900', letterSpacing: 2, textAlign: 'center', marginBottom: 20 },
+  daysRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+  dayHexagon: { width: 35, height: 35, justifyContent: 'center', alignItems: 'center' },
+  hexInner: { width: 30, height: 30, borderRadius: 6, backgroundColor: '#1a1a1a', justifyContent: 'center', alignItems: 'center', transform: [{ rotate: '45deg' }] },
+  dayText: { color: '#475569', fontSize: 12, fontWeight: 'bold', transform: [{ rotate: '-45deg' }] },
+  statusSub: { color: '#fbbf24', fontSize: 12, textAlign: 'center', marginTop: 20, fontWeight: 'bold', letterSpacing: 1 },
+
   titleSection: { marginBottom: 25 },
   sectionTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
   dateText: { color: '#64748b', fontSize: 12, fontWeight: 'bold', marginTop: 4, letterSpacing: 1 },
-  ritualCard: { 
-    backgroundColor: '#0f172a', padding: 25, borderRadius: 20, 
-    borderLeftWidth: 6, marginBottom: 25,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.5, shadowRadius: 20
-  },
+  ritualCard: { backgroundColor: '#0f172a', padding: 25, borderRadius: 20, borderLeftWidth: 6, marginBottom: 25 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   ritualTag: { color: '#94a3b8', fontSize: 10, fontWeight: 'bold', letterSpacing: 2 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
@@ -146,6 +226,9 @@ const styles = StyleSheet.create({
   pillarTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   pillarStatus: { color: '#475569', fontSize: 10, fontWeight: 'bold', marginTop: 2 },
   lockIcon: { color: '#334155', fontSize: 18 },
+  clinicBtn: { backgroundColor: '#1e293b', padding: 18, borderRadius: 12, alignItems: 'center', marginBottom: 12, borderWidth: 1, borderColor: '#334155' },
+  storeBtn: { backgroundColor: '#0f172a', padding: 18, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#fbbf24' },
+  actionBtnText: { color: '#fbbf24', fontWeight: '900', fontSize: 14, letterSpacing: 1 },
   footer: { position: 'absolute', bottom: 0, width: '100%', padding: 20, backgroundColor: '#050505', alignItems: 'center' },
   footerText: { color: '#1e293b', fontSize: 9, fontWeight: 'bold', letterSpacing: 1 }
 });
